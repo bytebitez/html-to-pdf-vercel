@@ -1,5 +1,8 @@
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
+import { writeFileSync, createReadStream, unlinkSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -20,21 +23,28 @@ export default async function handler(req, res) {
         });
 
         const page = await browser.newPage();
-        
         await page.setViewport({ width: 1280, height: 900 });
-
-        await page.setContent(htmlContent, {
-            waitUntil: 'networkidle0'  
-        });
-
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
         await page.evaluateHandle('document.fonts.ready');
 
+        // Generate a temporary file path
+        const pdfPath = join(tmpdir(), `generated-${Date.now()}.pdf`);
+        
+        // Generate and save PDF
         const pdfBuffer = await page.pdf({ format: 'A4' });
+        writeFileSync(pdfPath, pdfBuffer);
 
         await browser.close();
 
-        // Return the PDF buffer as JSON (Base64 encoded)
-        res.status(200).json({ pdf: pdfBuffer.toString('base64') });
+        // Stream the file
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="generated.pdf"');
+
+        const fileStream = createReadStream(pdfPath);
+        fileStream.pipe(res);
+
+        // Delete file after streaming
+        fileStream.on('end', () => unlinkSync(pdfPath));
 
     } catch (error) {
         console.error('Error generating PDF:', error);
