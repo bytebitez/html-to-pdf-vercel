@@ -14,9 +14,9 @@ export default async function handler(req, res) {
     let browser;
     try {
         browser = await puppeteer.launch({
-            args: chromium.args,
+            args: [...chromium.args, '--disable-gpu', '--single-process'],
             executablePath: await chromium.executablePath || '/usr/bin/chromium-browser',
-            headless: true,
+            headless: chromium.headless,
         });
 
         const page = await browser.newPage();
