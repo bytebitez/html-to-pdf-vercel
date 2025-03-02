@@ -13,17 +13,15 @@ export default async function handler(req, res) {
 
     let browser;
     try {
-        // Launch Puppeteer with headless Chromium
         browser = await puppeteer.launch({
             args: chromium.args,
-            executablePath: await chromium.executablePath,
+            executablePath: await chromium.executablePath || '/usr/bin/chromium-browser',
             headless: true,
         });
 
         const page = await browser.newPage();
         await page.setContent(htmlContent, { waitUntil: 'load' });
 
-        // Generate PDF
         const pdfBuffer = await page.pdf({ format: 'A4' });
 
         await browser.close();
