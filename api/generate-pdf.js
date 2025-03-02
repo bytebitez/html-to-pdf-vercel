@@ -20,15 +20,26 @@ export default async function handler(req, res) {
         });
 
         const page = await browser.newPage();
-        await page.setContent(htmlContent, { waitUntil: 'load' });
+        
+        // ✅ Ensure proper viewport size (fixes blank PDFs)
+        await page.setViewport({ width: 1280, height: 900 });
+
+        // ✅ Ensure HTML fully loads before generating PDF
+        await page.setContent(htmlContent, {
+            waitUntil: 'networkidle0'  // Waits until all requests are complete
+        });
+
+        // ✅ Fix possible blank pages in PDF
+        await page.evaluateHandle('document.fonts.ready');
 
         const pdfBuffer = await page.pdf({ format: 'A4' });
 
         await browser.close();
 
+        // ✅ Proper response headers
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=generated.pdf');
-        return res.send(pdfBuffer);
+        res.setHeader('Content-Disposition', 'inline; filename="generated.pdf"');
+        res.send(pdfBuffer);
     } catch (error) {
         console.error('Error generating PDF:', error);
         if (browser) await browser.close();
