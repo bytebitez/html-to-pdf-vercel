@@ -1,0 +1,24 @@
+{
+  "name": "html-to-pdf-vercel",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bytebitez/html-to-pdf-vercel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bytebitez/html-to-pdf-vercel/issues"
+  },
+  "homepage": "https://github.com/bytebitez/html-to-pdf-vercel#readme",
+  "description": "",
+  "dependencies": {
+    "chrome-aws-lambda": "^10.1.0",
+    "puppeteer-core": "^24.3.0"
+  }
+}
