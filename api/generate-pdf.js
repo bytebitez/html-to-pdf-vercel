@@ -27,11 +27,15 @@ export default async function handler(req, res) {
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
         await page.evaluateHandle('document.fonts.ready');
 
-        // Generate a temporary file path
+        // Ensure colors are included
         const pdfPath = join(tmpdir(), `generated-${Date.now()}.pdf`);
-        
-        // Generate and save PDF
-        const pdfBuffer = await page.pdf({ format: 'A4' });
+
+        const pdfBuffer = await page.pdf({ 
+            format: 'A4', 
+            printBackground: true,  // ✅ Ensures background colors & images are rendered
+            displayHeaderFooter: false 
+        });
+
         writeFileSync(pdfPath, pdfBuffer);
 
         await browser.close();
